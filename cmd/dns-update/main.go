@@ -2,19 +2,27 @@ package main
 
 import (
     "os"
+    "errors"
     "os/signal"
     "syscall"
     "log"
-//    "net/http"
     "github.com/google/logger"
     "github.com/jessevdk/go-flags"
 
-	nats "github.com/nats-io/nats.go"
-	"github.com/nats-io/stan.go"
+    nats "github.com/nats-io/nats.go"
+    "github.com/nats-io/stan.go"
 )
 
 var opts Opts
 var parser = flags.NewParser(&opts, flags.Default)
+
+func checkEnv() (bool, error) {
+    if os.Getenv("READ_TOKEN") == "" || os.Getenv("EDIT_TOKEN") == "" {
+        return false, errors.New("test")
+    }
+
+    return true, nil
+}
 
 func main() {
     if _, err := parser.Parse(); err != nil {
@@ -26,6 +34,10 @@ func main() {
 
     logger.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
     defer logger.Init("Logger", opts.Verbose, true, logfile).Close()
+
+    if _, err := checkEnv() ; err != nil {
+        logger.Fatal("READ_TOKEN and EDIT_TOKEN are required to be set.")
+    }
 
     logger.Infof("server params: server: %s, cluster: %s, log-path: %s, verbose: %t",
         opts.NatsServer, opts.Cluster, opts.LogPath, opts.Verbose)
@@ -83,8 +95,4 @@ func main() {
         cleanupDone <- true
     }()
     <-cleanupDone
-}
-
-func postUpdate(msg *stan.Msg) {
-    logger.Infof("update: %s", string(msg.Data))
 }
