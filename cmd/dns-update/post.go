@@ -2,7 +2,7 @@ package main
 
 import (
     "github.com/google/logger"
-	"github.com/nats-io/stan.go"
+    "github.com/nats-io/stan.go"
     "os"
 )
 
