@@ -18,7 +18,7 @@ var parser = flags.NewParser(&opts, flags.Default)
 
 func checkEnv() (bool, error) {
     if os.Getenv("READ_TOKEN") == "" || os.Getenv("EDIT_TOKEN") == "" {
-        return false, errors.New("test")
+        return false, errors.New("READ_TOKEN or EDIT_TOKEN missing")
     }
 
     return true, nil
